@@ -1,122 +1,52 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState, useMemo } from "react";
+import { P,money,TODAY,dt,iso,lab,ini,CL0,PR0,AG0,USERS,PISTAS,REV,addMin } from "./data";
+import { I, Badge } from "./components/ui";
+import Home from "./screens/Home";
+import Agenda from "./screens/Agenda";
+import Clientes from "./screens/Clientes";
+import Caixa from "./screens/Caixa";
+import Simple from "./screens/Simple";
+import NovoAg from "./components/NovoAg";
+import NovoCl from "./components/NovoCl";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+function App(){
+  const [tab,setTab]=useState("home"),[modal,setModal]=useState(""),[theme,setTheme]=useState(null),[user,setUser]=useState(0);
+  const [ag,setAg]=useState(AG0),[cl,setCl]=useState(CL0),[prods,setProds]=useState(PR0),[cart,setCart]=useState({}),[date,setDate]=useState(TODAY),[toast,setToast]=useState("");
+  const say=m=>{setToast(m);setTimeout(()=>setToast(""),2600)};
+  const go=t=>{setTab(t);setModal("")};
+  const toggleTheme=()=>{const dark=theme?theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;const n=dark?"light":"dark";setTheme(n);document.documentElement.setAttribute("data-theme",n)};
+  const low=prods.filter(p=>p.est<p.min).length,pend=cl.filter(c=>c.pend).length;
+  const main=["home","agenda","clientes","caixa"].includes(tab)?tab:"mais";
+  const titles={home:"Visão geral",agenda:"Agendamentos",clientes:"Clientes",caixa:"Caixa e vendas",estoque:"Estoque",catalogo:"Catálogo",pistas:"Pistas e equipamentos",filiados:"Filiados",relatorios:"Relatórios",config:"Configurações"};
+  const pay=total=>{setProds(ps=>ps.map(p=>({...p,est:p.est-(cart[p.id]||0)})));setCart({});say("Pagamento de "+money(total)+" recebido.")};
+  const menu=[["PRINCIPAL",[["home","grid","Visão geral"],["agenda","cal","Agendamentos"],["clientes","users","Clientes"],["caixa","bag","Caixa e vendas"]]],["GESTÃO DO ESTANDE",[["catalogo","ly","Catálogo"],["estoque","box","Estoque",low],["pistas","tg","Pistas e equipamentos"],["filiados","ok","Filiados"],["relatorios","chart","Relatórios"]]],["SISTEMA",[["config","set","Configurações"]]]];
+  return <div className="app">
+    <div className="top"><div className="logo"><span className="lg"><I n="tg"/></span><div><b>alvo certo.</b><small>ESTANDE DE TIRO</small></div></div>
+      <div className="tr"><button className="ib" onClick={toggleTheme} aria-label="Alternar tema"><I n="sun"/></button><button className="ib" onClick={()=>setModal("atencao")} aria-label="Central de atenção"><I n="bell"/><span className="dot"/></button><button className="av" onClick={()=>setModal("perfis")}>{ini(USERS[user][0])}</button></div></div>
+    <div className="crumb"><span>{titles[tab]}</span><span className="tag">Demo data</span></div>
+    <main>
+      {tab==="home"&&<Home go={go} open={setModal} ag={ag} prods={prods}/>}
+      {tab==="agenda"&&<Agenda ag={ag} open={setModal} date={date} setDate={setDate}/>}
+      {tab==="clientes"&&<Clientes cl={cl} openNew={()=>setModal("cliente")}/>}
+      {tab==="caixa"&&<Caixa prods={prods} cart={cart} setCart={setCart} pay={pay}/>}
+      {main==="mais"&&<Simple id={tab} prods={prods} cl={cl}/>}
+    </main>
+    <nav>{[["home","grid","Início"],["agenda","cal","Agenda"],["clientes","users","Clientes"],["caixa","bag","Caixa"]].map(([k,i,l])=><button key={k} className={main===k?"on":""} onClick={()=>go(k)}><I n={i}/>{l}</button>)}<button className={main==="mais"?"on":""} onClick={()=>setModal("menu")}><I n="menu"/>Mais</button></nav>
+    {modal&&<div className="ov" onClick={e=>e.target===e.currentTarget&&setModal("")}>
+      {modal==="novo"&&<NovoAg cl={cl} ag={ag} date={date} close={()=>setModal("")} onSave={a=>{setAg(x=>[...x,a]);setDate(a.data);setModal("");setTab("agenda");say("Agendamento confirmado.")}}/>}
+      {modal==="cliente"&&<NovoCl close={()=>setModal("")} onSave={(n,t)=>{setCl(c=>[...c,{nome:n,tipo:t,cod:"CLI-"+String(c.length+1).padStart(4,"0"),pend:1}]);setModal("");say("Cliente cadastrado com documentação pendente.")}}/>}
+      {modal==="menu"&&<div className="md"><div className="row"><div><h2>Alvo Certo</h2><span className="mu">Navegue pelo seu estande.</span></div><button className="ib" onClick={()=>setModal("")}><I n="x"/></button></div><hr/>
+        {menu.map(([s,items])=><div key={s}><div className="sec">{s}</div>{items.map(([k,i,l,b])=><button key={k} className={"mi"+(tab===k?" on":"")} onClick={()=>go(k)}><I n={i}/><span style={{flex:1}}>{l}</span>{b?<Badge k="wa">{b}</Badge>:null}</button>)}</div>)}
+        <button className="btn" style={{width:"100%",justifyContent:"center",marginTop:16}} onClick={()=>setModal("perfis")}><I n="usr"/>Trocar perfil de demonstração</button>
+        <button className="mi" style={{justifyContent:"center"}} onClick={()=>{setModal("");say("Área do cliente: disponível na versão completa.")}}><I n="ph"/>Visualizar área do cliente</button></div>}
+      {modal==="perfis"&&<div className="md"><div className="row"><h2>Perfis de demonstração</h2><button className="ib" onClick={()=>setModal("")}><I n="x"/></button></div><p className="mu">Explore os acessos de cada perfil. Este ambiente não tem autenticação real e os dados são fictícios.</p><hr/>
+        {USERS.map(([n,r],i)=><button key={n} className="li" style={{border:"1px solid "+(i===user?"var(--pr)":"var(--bd)"),borderRadius:12,padding:12,marginBottom:8,background:i===user?"var(--pl)":"none"}} onClick={()=>{setUser(i);setModal("");say("Perfil: "+n)}}><span className="av">{ini(n)}</span><div className="grow"><b>{n}</b><span className="mu">{r}</span></div>{i===user&&<I n="ok"/>}</button>)}</div>}
+      {modal==="atencao"&&<div className="md"><div className="row"><h2>Central de atenção</h2><button className="ib" onClick={()=>setModal("")}><I n="x"/></button></div><p className="mu">Pendências que precisam da recepção.</p><hr/>
+        <button className="alert" style={{background:"var(--wab)"}} onClick={()=>go("estoque")}><span style={{color:"var(--wa)"}}><I n="box"/></span><div style={{flex:1}}><b>{low} itens com estoque baixo</b><div className="mu">Confira os saldos e registre a reposição.</div></div><I n="ch"/></button>
+        <button className="alert" style={{background:"var(--erb)"}} onClick={()=>go("clientes")}><span style={{color:"var(--er)"}}><I n="al"/></span><div style={{flex:1}}><b>{pend} cadastros com pendências</b><div className="mu">O atendimento fica bloqueado até a regularização.</div></div><I n="ch"/></button></div>}
+    </div>}
+    {toast&&<div className="toast">{toast}</div>}
+  </div>;
 }
 
-export default App
+export default App;
