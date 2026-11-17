@@ -9,7 +9,7 @@ function Agenda({ag,open,date,setDate}){
   return <>
     <h1>Agendamentos</h1><p className="sub">Horários organizados. Atendimento sem conflitos.</p>
     <button className="btn p" onClick={()=>open("novo")} style={{marginBottom:16}}><I n="plus"/>Novo agendamento</button>
-    <div className="pg" style={{marginBottom:12}}>{PISTAS.map(p=><div className="pc" key={p[0]}><div className="row"><b>Pista {String(p[0]).padStart(2,"0")}</b><Badge k={p[2]}>{p[1]}</Badge></div><div className="mu" style={{marginTop:8}}>Pista indoor · {p[3]}</div></div>)}</div>
+    <div className="pg p4" style={{marginBottom:12}}>{PISTAS.map(p=><div className="pc" key={p[0]}><div className="row"><b>Pista {String(p[0]).padStart(2,"0")}</b><Badge k={p[2]}>{p[1]}</Badge></div><div className="mu" style={{marginTop:8}}>Pista indoor · {p[3]}</div></div>)}</div>
     <div className="card">
       <div className="row"><button className="ib" onClick={()=>shift(-1)}><I n="back"/></button><b>{lab(date)}</b><button className="ib" onClick={()=>shift(1)}><I n="ch"/></button><button className="btn" onClick={()=>setDate(TODAY)}>Hoje</button></div>
       <div className="tabs">{[["prox","Próximos"],["enc","Encerrados"],["todos","Todos"]].map(([k,l])=><button key={k} className={f===k?"on":""} onClick={()=>setF(k)}>{l}</button>)}</div>
